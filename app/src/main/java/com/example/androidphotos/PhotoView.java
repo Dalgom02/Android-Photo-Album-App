@@ -1,20 +1,21 @@
 package com.example.androidphotos;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.Bundle;
-import android.provider.MediaStore;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-
+import java.util.ArrayList;
 import java.util.List;
 
 import model.Album;
@@ -24,40 +25,53 @@ import model.Photo;
 public class PhotoView extends AppCompatActivity {
 
     private static final int REQUEST_CODE_PICK_IMAGE = 1;
-    private Album album;
-    private PhotoAdapter photoAdapter;
+
     private RecyclerView photoRecyclerView;
+    private PhotoAdapter photoAdapter;
+    private Button addPhotoButton;
+    private Button editPhotoButton;
+    private Button openPhotoButton;
+
+    private int albumIndex;
+    private Album currentAlbum;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photo_view);
 
-        // Load the album data
+        albumIndex = getIntent().getIntExtra("albumIndex", -1);
+
+        if (albumIndex == -1) {
+            Toast.makeText(this, "Invalid album index", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
         List<Album> albums = DataManager.loadAlbums(this);
-        album = albums.get(0); // Assuming the first album is the one you want to work with
+        currentAlbum = albums.get(albumIndex);
 
         photoRecyclerView = findViewById(R.id.photoRecyclerView);
-        photoAdapter = new PhotoAdapter(this, album.getPhotos());
         photoRecyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+
+        photoAdapter = new PhotoAdapter(this, currentAlbum.getPhotos());
         photoRecyclerView.setAdapter(photoAdapter);
 
-        Button addPhotoButton = findViewById(R.id.addPhotoButton);
-        addPhotoButton.setOnClickListener(v -> openImagePicker());
+        addPhotoButton = findViewById(R.id.addPhotoButton);
+        editPhotoButton = findViewById(R.id.editPhotoButton);
+        openPhotoButton = findViewById(R.id.openPhotoButton);
 
-        Button editPhotoButton = findViewById(R.id.editPhotoButton);
-        editPhotoButton.setOnClickListener(v -> {
-            // Implement edit functionality
-        });
-
-        Button openPhotoButton = findViewById(R.id.openPhotoButton);
-        openPhotoButton.setOnClickListener(v -> {
-            // Implement open functionality
+        addPhotoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openImagePicker();
+            }
         });
     }
 
     private void openImagePicker() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("image/*");
         startActivityForResult(intent, REQUEST_CODE_PICK_IMAGE);
     }
 
@@ -67,70 +81,58 @@ public class PhotoView extends AppCompatActivity {
 
         if (requestCode == REQUEST_CODE_PICK_IMAGE && resultCode == RESULT_OK && data != null) {
             Uri imageUri = data.getData();
-            if (imageUri != null) {
-                showAddPhotoDialog(imageUri);
-            }
+            Photo newPhoto = new Photo(System.currentTimeMillis(), imageUri);
+            DataManager.saveAlbums(this, DataManager.loadAlbums(this));
+            showAddPhotoDialog(newPhoto);
         }
     }
 
-    private void showAddPhotoDialog(Uri imageUri) {
+
+    private void showAddPhotoDialog(Photo newPhoto) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View view = getLayoutInflater().inflate(R.layout.dialog_add_photo, null);
 
         EditText photoNameEditText = view.findViewById(R.id.photo_name_edit_text);
         EditText personTagEditText = view.findViewById(R.id.person_tag_edit_text);
         EditText locationTagEditText = view.findViewById(R.id.location_tag_edit_text);
-        Button addPhotoDialogButton = view.findViewById(R.id.add_photo_dialog_button);
 
-        builder.setView(view);
+        builder.setView(view)
+                .setPositiveButton("Add Photo", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String photoName = photoNameEditText.getText().toString().trim();
+                        String personTag = personTagEditText.getText().toString().trim();
+                        String locationTag = locationTagEditText.getText().toString().trim();
+
+                        if (!photoName.isEmpty()) {
+                            newPhoto.setPhotoName(photoName);
+                        }
+
+                        if (!personTag.isEmpty()) {
+                            newPhoto.addPersonTag(personTag);
+                        }
+
+                        if (!locationTag.isEmpty()) {
+                            newPhoto.addLocationTag(locationTag);
+                        }
+
+                        List<Album> albums = DataManager.loadAlbums(PhotoView.this);
+                        albums.get(albumIndex).getPhotos().add(newPhoto);
+                        DataManager.saveAlbums(PhotoView.this, albums);
+                        currentAlbum = albums.get(albumIndex);
+                        photoAdapter.setPhotos(currentAlbum.getPhotos());
+                        photoAdapter.notifyDataSetChanged();
+                        Toast.makeText(PhotoView.this, "Photo added successfully", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
         AlertDialog dialog = builder.create();
-
-        addPhotoDialogButton.setOnClickListener(v -> {
-            String photoName = photoNameEditText.getText().toString();
-            String personTag = personTagEditText.getText().toString();
-            String locationTag = locationTagEditText.getText().toString();
-
-            long photoId = getPhotoId(imageUri);
-            Photo photo = new Photo(photoId, imageUri);
-            photo.setPhotoName(photoName);
-            photo.addPersonTag(personTag);
-            photo.addLocationTag(locationTag);
-            album.getPhotos().add(photo);
-            photoAdapter.notifyItemInserted(album.getPhotos().size() - 1);
-            dialog.dismiss();
-
-            // Save the updated album data
-            List<Album> albums = DataManager.loadAlbums(this);
-            albums.set(0, album); // Assuming the first album is the one you want to work with
-            DataManager.saveAlbums(this, albums);
-        });
-
         dialog.show();
     }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        // Save the album data when the activity goes into the background
-        List<Album> albums = DataManager.loadAlbums(this);
-        albums.set(0, album); // Assuming the first album is the one you want to work with
-        DataManager.saveAlbums(this, albums);
-    }
-
-    private long getPhotoId(Uri imageUri) {
-        String[] projection = {MediaStore.Images.Media._ID};
-        Cursor cursor = getContentResolver().query(imageUri, projection, null, null, null);
-
-        if (cursor != null && cursor.moveToFirst()) {
-            int columnIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
-            long id = cursor.getLong(columnIndex);
-            cursor.close();
-            return id;
-        }
-
-        return -1;
-    }
-
-
-
 }

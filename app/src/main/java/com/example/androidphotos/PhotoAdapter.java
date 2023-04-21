@@ -1,14 +1,13 @@
 package com.example.androidphotos;
 
+
 import android.content.Context;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.net.Uri;
+
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,10 +16,15 @@ import java.util.List;
 
 import model.Photo;
 
+
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder> {
 
     private Context context;
     private List<Photo> photos;
+
+    public void setPhotos(List<Photo> photos) {
+        this.photos = photos;
+    }
 
     public PhotoAdapter(Context context, List<Photo> photos) {
         this.context = context;
@@ -37,8 +41,8 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
     @Override
     public void onBindViewHolder(@NonNull PhotoViewHolder holder, int position) {
         Photo photo = photos.get(position);
-        Bitmap thumbnail = getThumbnailFromMediaStore(photo.getId());
-        holder.imageView.setImageBitmap(thumbnail);
+        Uri imageUri = Uri.parse(photo.getUri());
+        new ImageLoader(holder.imageView, context).execute(imageUri);
     }
 
     @Override
@@ -54,15 +58,5 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
             super(itemView);
             imageView = itemView.findViewById(R.id.photo_image);
         }
-    }
-
-    private Bitmap getThumbnailFromMediaStore(long photoId) {
-        Bitmap thumbnail = MediaStore.Images.Thumbnails.getThumbnail(
-                context.getContentResolver(),
-                photoId,
-                MediaStore.Images.Thumbnails.MINI_KIND,
-                null
-        );
-        return thumbnail;
     }
 }

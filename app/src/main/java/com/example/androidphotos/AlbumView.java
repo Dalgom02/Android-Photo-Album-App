@@ -163,11 +163,12 @@ public class AlbumView extends AppCompatActivity {
         Intent intent = new Intent(AlbumView.this, PhotoView.class);
 
         // Pass the index of the selected album to the PhotoView activity
-        intent.putExtra("albumIndex", selectedAlbumPosition);
+        intent.putExtra("albumIndex", selectedAlbumPosition); // Use "albumIndex" as key here
 
         // Start the PhotoView activity
         startActivity(intent);
     }
+
 
 
 }
