@@ -1,85 +1,69 @@
 package model;
 
-import java.io.*;
-import java.util.*;
+import android.net.Uri;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Photo implements Serializable {
+
     public static final long serialVersionUID = 1L;
 
-    private String photoPath;
-    private String fileName;
+    private long id;
+    private String uri;
+    private String photoName;
     private List<String> personTags;
     private List<String> locationTags;
 
-    public Photo(String photoPath) {
-        this.photoPath = photoPath;
-        this.fileName = photoPath.substring(photoPath.lastIndexOf('/')+1);
+    public Photo(String photoName) {
+        this.photoName = photoName;
         personTags = new ArrayList<String>();
         locationTags = new ArrayList<String>();
     }
 
-    public void addPersonTag(String personTag){
-        this.personTags.add(personTag.toLowerCase());
+    public Photo(long id, Uri photoUri) {
+        this.id = id;
+        this.uri = photoUri.toString();
+        personTags = new ArrayList<String>();
+        locationTags = new ArrayList<String>();
     }
 
-    public void removePersonTag(String personTag){
-        this.personTags.remove(personTag.toLowerCase());
+    public long getId() {
+        return id;
     }
 
-    public void addLocationTag(String locationTag){
-        this.locationTags.add(locationTag.toLowerCase());
+    public String getUri() {
+        return uri;
     }
 
-    public void removeLocationTag(String locationTag){
-        this.locationTags.remove(locationTag.toLowerCase());
+    public void setUri(Uri uri) {
+        this.uri = uri.toString();
     }
 
-    public List<String> getAllTags(){
-        List<String> allTags = new ArrayList<String>();
-
-        for(String locationTag : this.getlocationTags()){
-            allTags.add("Location: " + locationTag);
-        }
-        for(String personTag : this.getpersonTags()){
-            allTags.add("Person: " + personTag);
-        }
-
-        return allTags;
+    public String getPhotoName() {
+        return photoName;
     }
 
-    @Override
-    public boolean equals(Object obj){
-        if(obj == this){
-            return true;
-        }
-
-        if(!(obj instanceof Photo)){
-            return false;
-        }
-
-        Photo photo = (Photo) obj;
-        return photo.getphotoPath().equals(this.getphotoPath());
+    public void setPhotoName(String photoName) {
+        this.photoName = photoName;
     }
 
-    @Override
-    public int hashCode(){
-        return 17 * 11 + this.getphotoPath().hashCode();
-    }
-
-    public String getphotoPath() {
-        return photoPath;
-    }
-
-    public String getfileName() {
-        return fileName;
-    }
-
-    public List<String> getpersonTags() {
+    public List<String> getPersonTags() {
         return personTags;
     }
 
-    public List<String> getlocationTags() {
+    public void addPersonTag(String personTag) {
+        personTags.add(personTag);
+    }
+
+    public List<String> getLocationTags() {
         return locationTags;
     }
-}
 
+    public void addLocationTag(String locationTag) {
+        locationTags.add(locationTag);
+    }
+
+
+}

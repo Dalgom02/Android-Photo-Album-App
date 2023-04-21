@@ -2,6 +2,7 @@ package com.example.androidphotos;
 
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -158,9 +159,16 @@ public class AlbumView extends AppCompatActivity {
             return;
         }
 
-        // Implement the logic to open the selected album
-        // You can create a new activity to display the album content and start that activity here
+        // Create an intent to open the PhotoView activity
+        Intent intent = new Intent(AlbumView.this, PhotoView.class);
+
+        // Pass the index of the selected album to the PhotoView activity
+        intent.putExtra("albumIndex", selectedAlbumPosition);
+
+        // Start the PhotoView activity
+        startActivity(intent);
     }
+
 
 }
 
