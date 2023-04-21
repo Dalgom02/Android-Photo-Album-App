@@ -15,7 +15,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import model.Album;
@@ -66,6 +65,34 @@ public class PhotoView extends AppCompatActivity {
                 openImagePicker();
             }
         });
+
+        editPhotoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int selectedPosition = photoAdapter.getSelectedPosition();
+                if (selectedPosition != -1) {
+                    // Edit the selected photo
+                } else {
+                    Toast.makeText(PhotoView.this, "No photo selected", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        // ...
+        openPhotoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int selectedPosition = photoAdapter.getSelectedPosition();
+                if (selectedPosition != -1) {
+                    Intent intent = new Intent(PhotoView.this, DisplayView.class);
+                    intent.putExtra("albumIndex", albumIndex);
+                    intent.putExtra("photoIndex", selectedPosition);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(PhotoView.this, "No photo selected", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     private void openImagePicker() {
@@ -87,7 +114,6 @@ public class PhotoView extends AppCompatActivity {
         }
     }
 
-
     private void showAddPhotoDialog(Photo newPhoto) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View view = getLayoutInflater().inflate(R.layout.dialog_add_photo, null);
@@ -101,19 +127,25 @@ public class PhotoView extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String photoName = photoNameEditText.getText().toString().trim();
-                        String personTag = personTagEditText.getText().toString().trim();
-                        String locationTag = locationTagEditText.getText().toString().trim();
+                        String personTags = personTagEditText.getText().toString().trim();
+                        String locationTags = locationTagEditText.getText().toString().trim();
 
                         if (!photoName.isEmpty()) {
                             newPhoto.setPhotoName(photoName);
                         }
 
-                        if (!personTag.isEmpty()) {
-                            newPhoto.addPersonTag(personTag);
+                        if (!personTags.isEmpty()) {
+                            String[] personTagArray = personTags.split(",");
+                            for (String tag : personTagArray) {
+                                newPhoto.addPersonTag(tag.trim());
+                            }
                         }
 
-                        if (!locationTag.isEmpty()) {
-                            newPhoto.addLocationTag(locationTag);
+                        if (!locationTags.isEmpty()) {
+                            String[] locationTagArray = locationTags.split(",");
+                            for (String tag : locationTagArray) {
+                                newPhoto.addLocationTag(tag.trim());
+                            }
                         }
 
                         List<Album> albums = DataManager.loadAlbums(PhotoView.this);
@@ -135,4 +167,9 @@ public class PhotoView extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+
+
+
+
+
 }
