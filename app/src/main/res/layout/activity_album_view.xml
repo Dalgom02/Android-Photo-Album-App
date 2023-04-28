@@ -58,6 +58,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Open" />
+
+        <Button
+            android:id="@+id/searchButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Search" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

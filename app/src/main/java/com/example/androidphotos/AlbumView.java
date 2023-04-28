@@ -83,7 +83,24 @@ public class AlbumView extends AppCompatActivity {
                 openAlbum();
             }
         });
+
+
+        // Set up the search button
+        Button searchButton = findViewById(R.id.searchButton);
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openSearch();
+            }
+        });
+
     }
+
+    private void openSearch() {
+        Intent intent = new Intent(AlbumView.this, SearchView.class);
+        startActivity(intent);
+    }
+
 
     private void addAlbum() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
