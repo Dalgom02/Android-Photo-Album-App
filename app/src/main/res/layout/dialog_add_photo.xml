@@ -15,12 +15,12 @@
         android:id="@+id/person_tag_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Person Tag" />
+        android:hint="Person Tag (add multiple with comma)" />
 
     <EditText
         android:id="@+id/location_tag_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Location Tag" />
+        android:hint="Location Tag(add multiple with comma)" />
 
 </LinearLayout>

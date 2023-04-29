@@ -20,8 +20,19 @@ public class SearchFilter extends Filter {
         List<String> suggestions = new ArrayList<>();
 
         if (constraint != null && !constraint.toString().trim().isEmpty()) {
+            String constraintText = constraint.toString().toLowerCase().trim();
+            String[] constraintParts = constraintText.split("\\s+");
+
             for (String item : items) {
-                if (item.toLowerCase().contains(constraint.toString().toLowerCase())) {
+                String[] itemParts = item.toLowerCase().split("\\s+");
+                boolean match = true;
+                for (int i = 0; i < constraintParts.length; i++) {
+                    if (i < itemParts.length && !itemParts[i].startsWith(constraintParts[i])) {
+                        match = false;
+                        break;
+                    }
+                }
+                if (match) {
                     suggestions.add(item);
                 }
             }
@@ -35,7 +46,7 @@ public class SearchFilter extends Filter {
 
     @Override
     protected void publishResults(CharSequence constraint, FilterResults results) {
-        adapter.clear();
+        // Remove the duplicated 'adapter.clear()' call.
         adapter.clear();
         if (results != null && results.count > 0) {
             adapter.addAll((List<String>) results.values);
@@ -44,4 +55,5 @@ public class SearchFilter extends Filter {
             adapter.notifyDataSetInvalidated();
         }
     }
+
 }

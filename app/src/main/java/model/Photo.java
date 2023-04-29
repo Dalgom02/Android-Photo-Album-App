@@ -1,6 +1,7 @@
 package model;
 
 import android.net.Uri;
+import android.text.TextUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -91,5 +92,8 @@ public class Photo implements Serializable {
 
         return false;
     }
+
+
+
 
 }

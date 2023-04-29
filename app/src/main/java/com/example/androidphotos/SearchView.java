@@ -4,6 +4,9 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.AutoCompleteTextView;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -79,24 +82,43 @@ public class SearchView extends AppCompatActivity {
         searchAutoCompleteAdapter.setItems(new ArrayList<>(uniqueTags));
     }
 
+
     private void performSearch(String query) {
         query = query.toLowerCase(); // Convert the query to lowercase
         List<Album> albums = DataManager.loadAlbums(this);
         List<Photo> matchingPhotos = new ArrayList<>();
 
-        String[] queryParts = query.split(" ");
+        // Updated regex pattern to match both uppercase and lowercase "and" and "or" operators without quotes
+        Pattern pattern = Pattern.compile("(person|location)=([\\w\\s]+)|\\b(?i)(and|or)\\b");
+        Matcher matcher = pattern.matcher(query);
+
+        List<String[]> matchList = new ArrayList<>();
         String searchType = "";
-        if (queryParts.length > 1) {
-            searchType = queryParts[1].toUpperCase(); // "AND" or "OR"
+
+        while (matcher.find()) {
+            if (matcher.group(1) != null && matcher.group(2) != null) {
+                String tagType = matcher.group(1);
+                String tagValue = matcher.group(2).trim();
+                matchList.add(new String[]{tagType, tagValue});
+            } else if (matcher.group(3) != null) {
+                searchType = matcher.group(3).toUpperCase();
+            }
+        }
+
+        if (matchList.isEmpty()) {
+            return;
         }
 
         for (Album album : albums) {
             for (Photo photo : album.getPhotos()) {
-                boolean firstTagMatch = photo.hasTag(queryParts[0]);
+                boolean firstTagMatch = hasTagStartsWith(photo, matchList.get(0)[0], matchList.get(0)[1]);
+                boolean secondTagMatch = false;
 
-                if (queryParts.length > 2) {
-                    boolean secondTagMatch = photo.hasTag(queryParts[2]);
+                if (matchList.size() > 1) {
+                    secondTagMatch = hasTagStartsWith(photo, matchList.get(1)[0], matchList.get(1)[1]);
+                }
 
+                if (!searchType.isEmpty()) {
                     if (searchType.equals("AND") && firstTagMatch && secondTagMatch) {
                         matchingPhotos.add(photo);
                     } else if (searchType.equals("OR") && (firstTagMatch || secondTagMatch)) {
@@ -111,5 +133,30 @@ public class SearchView extends AppCompatActivity {
         photoAdapter.setPhotos(matchingPhotos);
         photoAdapter.notifyDataSetChanged();
     }
+
+
+
+    private boolean hasTagStartsWith(Photo photo, String tagType, String tagValue) {
+        List<String> tags;
+        if (tagType.equals("person")) {
+            tags = photo.getPersonTags();
+        } else if (tagType.equals("location")) {
+            tags = photo.getLocationTags();
+        } else {
+            return false;
+        }
+
+        for (String tag : tags) {
+            if (tag.toLowerCase().startsWith(tagValue.toLowerCase())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+
+
 
 }

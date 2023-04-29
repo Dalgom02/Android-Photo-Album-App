@@ -23,12 +23,12 @@ public class SearchAutoCompleteAdapter extends ArrayAdapter<String> implements F
     // Override the getCount and getItem methods to return data from the suggestions list.
     @Override
     public int getCount() {
-        return suggestions.size();
+        return super.getCount();
     }
 
     @Override
     public String getItem(int position) {
-        return suggestions.get(position);
+        return super.getItem(position);
     }
 
     // Create a custom filter to handle the filtering logic.

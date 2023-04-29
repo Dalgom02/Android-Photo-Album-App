@@ -11,7 +11,7 @@
         android:id="@+id/searchAutoCompleteTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Search: TagType=String"
+        android:hint="Search: TagType=String &quot;and&quot;/&quot;or&quot;"
         android:singleLine="true" />
 
     <androidx.recyclerview.widget.RecyclerView
