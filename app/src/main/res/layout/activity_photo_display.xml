@@ -39,9 +39,9 @@
             android:id="@+id/people_tag_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="People: "
+            android:text="Person: "
             android:textSize="18sp"
-            tools:text="People: John, Jane" />
+            tools:text="Person: John, Jane" />
     </LinearLayout>
 
     <LinearLayout

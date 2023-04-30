@@ -13,6 +13,8 @@ import android.widget.ListView;
 import android.app.Activity;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import android.widget.Toast;
+
 
 
 import java.util.List;
@@ -112,7 +114,20 @@ public class AlbumView extends AppCompatActivity {
         builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String albumName = input.getText().toString();
+                String albumName = input.getText().toString().trim();
+
+                if (albumName.isEmpty()) {
+                    Toast.makeText(AlbumView.this, "Album name cannot be empty.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                for (Album album : albums) {
+                    if (album.getAlbumName().equalsIgnoreCase(albumName)) {
+                        Toast.makeText(AlbumView.this, "Album with this name already exists.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+
                 Album newAlbum = new Album(albumName);
                 albums.add(newAlbum);
                 DataManager.saveAlbums(AlbumView.this, albums);
@@ -144,7 +159,20 @@ public class AlbumView extends AppCompatActivity {
         builder.setPositiveButton("Rename", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String newAlbumName = input.getText().toString();
+                String newAlbumName = input.getText().toString().trim();
+
+                if (newAlbumName.isEmpty()) {
+                    Toast.makeText(AlbumView.this, "Album name cannot be empty.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                for (Album album : albums) {
+                    if (album.getAlbumName().equalsIgnoreCase(newAlbumName)) {
+                        Toast.makeText(AlbumView.this, "Album with this name already exists.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+
                 albums.get(selectedAlbumPosition).setAlbumName(newAlbumName);
                 DataManager.saveAlbums(AlbumView.this, albums);
                 albumAdapter.notifyDataSetChanged();
@@ -170,6 +198,7 @@ public class AlbumView extends AppCompatActivity {
 
         builder.show();
     }
+
 
     private void openAlbum() {
         if (selectedAlbumPosition == -1) {

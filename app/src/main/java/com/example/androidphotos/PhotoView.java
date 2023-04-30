@@ -15,7 +15,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import model.Album;
 import model.DataManager;
@@ -118,7 +120,6 @@ public class PhotoView extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View view = getLayoutInflater().inflate(R.layout.dialog_add_photo, null);
 
-        EditText photoNameEditText = view.findViewById(R.id.photo_name_edit_text);
         EditText personTagEditText = view.findViewById(R.id.person_tag_edit_text);
         EditText locationTagEditText = view.findViewById(R.id.location_tag_edit_text);
 
@@ -126,25 +127,30 @@ public class PhotoView extends AppCompatActivity {
                 .setPositiveButton("Add Photo", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        String photoName = photoNameEditText.getText().toString().trim();
                         String personTags = personTagEditText.getText().toString().trim();
                         String locationTags = locationTagEditText.getText().toString().trim();
 
-                        if (!photoName.isEmpty()) {
-                            newPhoto.setPhotoName(photoName);
-                        }
-
                         if (!personTags.isEmpty()) {
                             String[] personTagArray = personTags.split(",");
+                            Set<String> uniquePersonTags = new HashSet<>();
                             for (String tag : personTagArray) {
-                                newPhoto.addPersonTag(tag.trim());
+                                uniquePersonTags.add(tag.trim());
+                            }
+
+                            for (String uniqueTag : uniquePersonTags) {
+                                newPhoto.addPersonTag(uniqueTag);
                             }
                         }
 
                         if (!locationTags.isEmpty()) {
                             String[] locationTagArray = locationTags.split(",");
+                            Set<String> uniqueLocationTags = new HashSet<>();
                             for (String tag : locationTagArray) {
-                                newPhoto.addLocationTag(tag.trim());
+                                uniqueLocationTags.add(tag.trim());
+                            }
+
+                            for (String uniqueTag : uniqueLocationTags) {
+                                newPhoto.addLocationTag(uniqueTag);
                             }
                         }
 
