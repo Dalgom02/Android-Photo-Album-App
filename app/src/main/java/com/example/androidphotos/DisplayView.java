@@ -46,6 +46,7 @@ public class DisplayView extends AppCompatActivity {
 
     private PhotoAdapter photoAdapter;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
