@@ -23,6 +23,7 @@ import model.Album;
 import model.DataManager;
 import model.Photo;
 
+
 public class PhotoView extends AppCompatActivity {
 
     private static final int REQUEST_CODE_PICK_IMAGE = 1;

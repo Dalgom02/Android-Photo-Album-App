@@ -33,6 +33,7 @@ public class MoveView extends AppCompatActivity {
     private List<Photo> photos;
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
