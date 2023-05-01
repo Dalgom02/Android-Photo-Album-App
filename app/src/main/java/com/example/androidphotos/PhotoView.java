@@ -30,7 +30,10 @@ public class PhotoView extends AppCompatActivity {
     private RecyclerView photoRecyclerView;
     private PhotoAdapter photoAdapter;
     private Button addPhotoButton;
-    private Button editPhotoButton;
+
+    private Button dPhotoButton;
+
+    private Button movePhotoButton;
     private Button openPhotoButton;
 
     private int albumIndex;
@@ -58,7 +61,8 @@ public class PhotoView extends AppCompatActivity {
         photoRecyclerView.setAdapter(photoAdapter);
 
         addPhotoButton = findViewById(R.id.addPhotoButton);
-        editPhotoButton = findViewById(R.id.editPhotoButton);
+        dPhotoButton = findViewById(R.id.dPhotoButton);
+        movePhotoButton = findViewById(R.id.movePhotoButton);
         openPhotoButton = findViewById(R.id.openPhotoButton);
 
         addPhotoButton.setOnClickListener(new View.OnClickListener() {
@@ -68,12 +72,34 @@ public class PhotoView extends AppCompatActivity {
             }
         });
 
-        editPhotoButton.setOnClickListener(new View.OnClickListener() {
+        dPhotoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int selectedPosition = photoAdapter.getSelectedPosition();
+                if (selectedPosition != -1) {
+                    List<Album> albums = DataManager.loadAlbums(PhotoView.this);
+                    albums.get(albumIndex).removePhoto(selectedPosition);
+                    DataManager.saveAlbums(PhotoView.this, albums);
+                    currentAlbum = albums.get(albumIndex);
+                    photoAdapter.setPhotos(currentAlbum.getPhotos());
+                    photoAdapter.notifyDataSetChanged();
+                    Toast.makeText(PhotoView.this, "Photo deleted successfully", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(PhotoView.this, "No photo selected", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        movePhotoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 int selectedPosition = photoAdapter.getSelectedPosition();
                 if (selectedPosition != -1) {
                     // Edit the selected photo
+                    Intent i = new Intent(PhotoView.this, MoveView.class);
+                    i.putExtra("albumIndex", albumIndex);
+                    i.putExtra("photoIndex",photoAdapter.getSelectedPosition());
+                    startActivity(i);
                 } else {
                     Toast.makeText(PhotoView.this, "No photo selected", Toast.LENGTH_SHORT).show();
                 }
