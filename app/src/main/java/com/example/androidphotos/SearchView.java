@@ -6,6 +6,7 @@ import android.text.TextWatcher;
 import android.widget.AutoCompleteTextView;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import android.text.TextUtils;
 
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,12 +25,15 @@ import model.Album;
 import model.DataManager;
 import model.Photo;
 
+
 public class SearchView extends AppCompatActivity {
 
     private AutoCompleteTextView searchAutoCompleteTextView;
     private RecyclerView searchResultsRecyclerView;
     private PhotoAdapter photoAdapter;
     private SearchAutoCompleteAdapter searchAutoCompleteAdapter;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +51,8 @@ public class SearchView extends AppCompatActivity {
         searchAutoCompleteAdapter = new SearchAutoCompleteAdapter(this, android.R.layout.simple_dropdown_item_1line);
         searchAutoCompleteTextView.setAdapter(searchAutoCompleteAdapter);
         populateTags();
+
+
 
         searchAutoCompleteTextView.addTextChangedListener(new TextWatcher() {
             @Override
@@ -84,6 +90,12 @@ public class SearchView extends AppCompatActivity {
 
 
     private void performSearch(String query) {
+        if (query.trim().isEmpty()) {
+            photoAdapter.setPhotos(new ArrayList<>());
+            photoAdapter.notifyDataSetChanged();
+            return;
+        }
+
         query = query.toLowerCase(); // Convert the query to lowercase
         List<Album> albums = DataManager.loadAlbums(this);
         List<Photo> matchingPhotos = new ArrayList<>();

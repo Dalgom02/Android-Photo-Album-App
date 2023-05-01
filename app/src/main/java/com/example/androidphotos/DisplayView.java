@@ -146,6 +146,7 @@ public class DisplayView extends AppCompatActivity {
                 if(split[0].equalsIgnoreCase("Person")) {
                     p.getPersonTags().remove(split[1]);
                 }
+                albums.set(albumIndex, currentAlbum);
                 DataManager.saveAlbums(DisplayView.this, albums);
                 updatePhotoDisplay();
                 Toast.makeText(DisplayView.this, "Tag deleted successfully", Toast.LENGTH_SHORT).show();
@@ -211,6 +212,7 @@ public class DisplayView extends AppCompatActivity {
                         }
 
                         updatePhotoDisplay();
+                        albums.set(albumIndex, currentAlbum);
                         DataManager.saveAlbums(DisplayView.this,albums);
 
                         Toast.makeText(DisplayView.this, "Tag added successfully", Toast.LENGTH_SHORT).show();
