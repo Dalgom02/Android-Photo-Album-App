@@ -239,7 +239,7 @@ public class DisplayView extends AppCompatActivity {
         String locationTags = "Location: " + String.join(", ", currentPhoto.getLocationTags());
         locationTagTextView.setText(locationTags);
 
-        String peopleTags = "People: " + String.join(", ", currentPhoto.getPersonTags());
+        String peopleTags = "Person: " + String.join(", ", currentPhoto.getPersonTags());
         peopleTagTextView.setText(peopleTags);
     }
 }

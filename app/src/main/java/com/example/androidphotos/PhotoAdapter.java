@@ -8,7 +8,6 @@ import android.widget.ImageView;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -19,6 +18,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
     private Context context;
     private List<Photo> photos;
+    private OnItemClickListener onItemClickListener;
     private int selectedPosition = -1;
 
     public void setPhotos(List<Photo> photos) {
@@ -43,21 +43,22 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
         Uri imageUri = Uri.parse(photo.getUri());
         new ImageLoader(holder.imageView, context).execute(imageUri);
 
-        // Set the selected state
-        if (selectedPosition == position) {
-            holder.itemView.setBackground(ContextCompat.getDrawable(context, R.drawable.selected_image_border));
-        } else {
-            holder.itemView.setBackground(null);
-        }
-
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                notifyItemChanged(selectedPosition);
-                selectedPosition = holder.getLayoutPosition();
+                int previousSelectedPosition = selectedPosition;
+                selectedPosition = holder.getAdapterPosition();
+                if (onItemClickListener != null) {
+                    onItemClickListener.onItemClick(selectedPosition);
+                }
+                notifyItemChanged(previousSelectedPosition);
                 notifyItemChanged(selectedPosition);
             }
         });
+
+        // Set the selected state
+        holder.itemView.setSelected(selectedPosition == position);
+
     }
 
     @Override
@@ -65,8 +66,8 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
         return photos.size();
     }
 
-    public int getSelectedPosition() {
-        return selectedPosition;
+    public List<Photo> getPhotos() {
+        return photos;
     }
 
     public class PhotoViewHolder extends RecyclerView.ViewHolder {
@@ -77,5 +78,17 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
             super(itemView);
             imageView = itemView.findViewById(R.id.photo_image);
         }
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(int position);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        this.onItemClickListener = onItemClickListener;
+    }
+
+    public int getSelectedPosition() {
+        return selectedPosition;
     }
 }

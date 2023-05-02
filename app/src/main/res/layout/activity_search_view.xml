@@ -23,4 +23,12 @@
         app:spanCount="3"
         tools:listitem="@layout/photo_item" />
 
+    <TextView
+        android:id="@+id/tagInfoTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Person Tags: \nLocation Tags: "
+        android:padding="8dp" />
+
 </LinearLayout>

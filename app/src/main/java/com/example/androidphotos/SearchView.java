@@ -7,6 +7,7 @@ import android.widget.AutoCompleteTextView;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import android.text.TextUtils;
+import android.widget.TextView;
 
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -33,6 +34,9 @@ public class SearchView extends AppCompatActivity {
     private PhotoAdapter photoAdapter;
     private SearchAutoCompleteAdapter searchAutoCompleteAdapter;
 
+    private TextView tagInfoTextView;
+
+
 
 
     @Override
@@ -42,17 +46,30 @@ public class SearchView extends AppCompatActivity {
 
         searchAutoCompleteTextView = findViewById(R.id.searchAutoCompleteTextView);
         searchResultsRecyclerView = findViewById(R.id.searchResultsRecyclerView);
+        tagInfoTextView = findViewById(R.id.tagInfoTextView);
 
         searchResultsRecyclerView.setLayoutManager(new GridLayoutManager(this, 3));
 
         photoAdapter = new PhotoAdapter(this, new ArrayList<>());
         searchResultsRecyclerView.setAdapter(photoAdapter);
 
+        photoAdapter.setOnItemClickListener(new PhotoAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                if (position >= 0) { // Check if a valid item is clicked
+                    Photo selectedPhoto = photoAdapter.getPhotos().get(position);
+                    String personTags = TextUtils.join(", ", selectedPhoto.getPersonTags());
+                    String locationTags = TextUtils.join(", ", selectedPhoto.getLocationTags());
+                    tagInfoTextView.setText("Person Tags: " + personTags + "\nLocation Tags: " + locationTags);
+                } else {
+                    tagInfoTextView.setText("Person Tags: \nLocation Tags: ");
+                }
+            }
+        });
+
         searchAutoCompleteAdapter = new SearchAutoCompleteAdapter(this, android.R.layout.simple_dropdown_item_1line);
         searchAutoCompleteTextView.setAdapter(searchAutoCompleteAdapter);
         populateTags();
-
-
 
         searchAutoCompleteTextView.addTextChangedListener(new TextWatcher() {
             @Override
@@ -93,6 +110,7 @@ public class SearchView extends AppCompatActivity {
         if (query.trim().isEmpty()) {
             photoAdapter.setPhotos(new ArrayList<>());
             photoAdapter.notifyDataSetChanged();
+            tagInfoTextView.setText("Person Tags: \nLocation Tags: "); // Clear the tag information
             return;
         }
 
@@ -166,6 +184,7 @@ public class SearchView extends AppCompatActivity {
 
         return false;
     }
+
 
 
 
